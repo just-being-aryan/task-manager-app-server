@@ -15,13 +15,35 @@ console.log('Looking for schema at:', schemaPath);
 
 try {
   const schema = fs.readFileSync(schemaPath, 'utf8');
+  
   const run = async () => {
-    await pool.query(schema);
-    console.log('✅ Database initialized');
-    process.exit(0);
+    try {
+      // Split SQL statements by semicolon and filter out empty statements
+      const statements = schema
+        .split(';')
+        .map(stmt => stmt.trim())
+        .filter(stmt => stmt.length > 0 && !stmt.startsWith('--'));
+      
+      console.log(`Executing ${statements.length} SQL statements...`);
+      
+      for (let i = 0; i < statements.length; i++) {
+        const statement = statements[i];
+        console.log(`Executing statement ${i + 1}:`, statement.substring(0, 50) + '...');
+        await pool.query(statement);
+        console.log(`✅ Statement ${i + 1} executed successfully`);
+      }
+      
+      console.log('✅ Database schema updated successfully');
+      process.exit(0);
+    } catch (error) {
+      console.error('❌ Database initialization failed:', error.message);
+      console.error('Full error:', error);
+      process.exit(1);
+    }
   };
+  
   run();
 } catch (err) {
-  console.error('❌ Failed to initialize database:', err);
+  console.error('❌ Failed to read schema file:', err);
   process.exit(1);
 }
