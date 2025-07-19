@@ -4,7 +4,6 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "prestart": "node initDB.js",
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
