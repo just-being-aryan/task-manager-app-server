@@ -15,8 +15,8 @@ const generateToken = (userId) => {
 export const registerUser = asyncHandler(async (req, res, next) => {
   const { name, email, password } = req.body;
 
-  if (!name || !email || !password) {
-    throw new ApiError(400, 'All fields are required');
+  if (!email || !password) {
+    throw new ApiError(400, 'Email and password are required');
   }
 
   const [existing] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
@@ -26,7 +26,7 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
   await pool.query('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [
-    name,
+    name || null, // Set to null if name is empty or undefined
     email,
     hashedPassword,
   ]);
