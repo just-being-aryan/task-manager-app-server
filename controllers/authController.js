@@ -31,13 +31,18 @@ export const registerUser = asyncHandler(async (req, res, next) => {
     hashedPassword,
   ]);
 
-  const [newUser] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
+  const [newUser] = await pool.query('SELECT id, name, email FROM users WHERE email = ?', [email]);
 
   const token = generateToken(newUser[0].id);
   res.status(201).json({
     success: true,
     message: 'User registered successfully',
     token,
+    user: {
+      id: newUser[0].id,
+      name: newUser[0].name,
+      email: newUser[0].email
+    }
   });
 });
 
@@ -66,5 +71,10 @@ export const loginUser = asyncHandler(async (req, res, next) => {
     success: true,
     message: 'Logged in successfully',
     token,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email
+    }
   });
 });
